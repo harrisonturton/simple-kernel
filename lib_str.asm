@@ -27,6 +27,7 @@ print_nl:
   int 0x10              ; Print char
   mov al, 0x0d          ; Carriage return
   int 0x10              ; Print char
+  jmp return
 
 ; return (as a subroutine) is
 ; needed for conditional
