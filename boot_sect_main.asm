@@ -1,4 +1,3 @@
-; compiled with nasm -f bin boot_sector.asm -o boot_sector.bin
 [org 0x7c00]            ; Offset for start of loaded boot sector at mem address 0x7c00
                         ; Offets are treated absolutely -- i.e. from the beginning of memory, but
                         ; our code gives the offset from the start of our loaded code, i.e. the 
@@ -16,7 +15,7 @@ main:                   ; Loop infinitely
 %include "boot_sect_str.asm"
 
 boot_message:
-  db "Booting HarryOS...", 0
+  db "Booting custom OS...", 0
 
 ; Fill with 510 zeroes minus the size of the previous code
 ; $$ is beginning of current section, $-$$ is size of section so far.
