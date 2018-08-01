@@ -12,7 +12,7 @@ call print_nl
 main:                   ; Loop infinitely
   jmp main
 
-%include "boot_sect_str.asm"
+%include "lib_str.asm"
 
 boot_message:
   db "Booting custom OS...", 0
