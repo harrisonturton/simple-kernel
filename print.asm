@@ -29,48 +29,6 @@ print_nl:
   int 0x10              ; Print char
   jmp return
 
-print_hex:
-  mov bx, 4
-  push ax
-  mov ax, '0'
-  call print_char
-  mov ax, 'x'
-  call print_char
-  pop ax
-  push esp
-print_hex_loop:
-  rol ax, 4
-  push ax
-  call print_hex_char
-  pop ax
-  dec bx
-  cmp bx, 0
-  jne print_hex_loop
-  pop esp
-  jmp return
-
-; --parameters--
-; ax: character to print
-print_char:
-  pusha
-  mov ah, 0x0e
-  int 0x10
-  jmp return
-
-; --parameters--
-; ax: character to print
-print_hex_char:
-  pusha
-  and ax, 0b1111
-  add al, 48
-  cmp al, 57
-  jle skip_offset
-  add al, 7
-skip_offset:
-  mov ah, 0x0e
-  int 0x10
-  jmp return
-
 ; return (as a subroutine) is
 ; needed for conditional
 ; returns.
