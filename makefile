@@ -1,4 +1,8 @@
 
+C_SOURCES = $(wildcard kernel/*.c drivers/*.c)
+HEADERS   = $(wildcard kernel/*.h drivers/*.h)
+OBJ       = ${C_SOURCES:.c=.o}
+
 # Default build target
 all: os-image
 
@@ -7,6 +11,8 @@ all: os-image
 # Clear all generated files
 clean:
 	rm -fr *.bin *.dis *.o os-image *.map
+	rm -fr kernel/*.o drivers/*.o boot/*.o
+	rm -fr boot/*.bin
 	rm -r build/*.o build/*.bin
 
 # Disassemble kernel for debugging
@@ -28,11 +34,17 @@ os-image: build/boot.bin build/kernel.bin
 # Build the kernel binary from the two main obj files:
 # 	- kernel_entry, which jumps to main() in the kernel
 # 	- kernel.o, the compiled C kernel
-build/kernel.bin: build/kernel_entry.o build/kernel.o
+build/kernel.bin: build/kernel_entry.o build/kernel.o build/screen.o build/ports.o
 	ld -m elf_i386 -s -o $@ -Ttext 0x1000 $^ --oformat binary
 
 # Build the kernel object file
-build/kernel.o: kernel/kernel.c
+build/kernel.o: kernel/kernel.c drivers/screen.h drivers/ports.h
+	gcc -m32 -ffreestanding -c $< -o $@
+
+build/screen.o: drivers/screen.c
+	gcc -m32 -ffreestanding -c $< -o $@
+
+build/ports.o: drivers/ports.c
 	gcc -m32 -ffreestanding -c $< -o $@
 
 # Build kernel entry object file
