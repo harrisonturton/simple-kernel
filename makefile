@@ -1,56 +1,47 @@
+C_SOURCES = $(wildcard kernel/*.c drivers/*.c cpu/*.c)
+HEADERS = $(wildcard kernel/*.h drivers/*.h cpu/*.h)
+# Nice syntax for file extension replacement
+OBJ = ${C_SOURCES:.c=.o cpu/interrupt.o} 
 
-C_SOURCES = $(wildcard kernel/*.c drivers/*.c)
-HEADERS   = $(wildcard kernel/*.h drivers/*.h)
-OBJ       = ${C_SOURCES:.c=.o}
+# Change this if your cross-compiler is somewhere else
+CC = gcc
+GDB = gdb
+# -g: Use debugging symbols in gcc
+CFLAGS = -m32 -g
 
-# Default build target
-all: os-image
+# First rule is run by default
+os-image.bin: boot/boot.bin kernel.bin
+	cat $^ > os-image.bin
 
-# --------- Helpful Commands ----------
-
-# Clear all generated files
-clean:
-	rm -fr *.bin *.dis *.o os-image *.map
-	rm -fr kernel/*.o drivers/*.o boot/*.o
-	rm -fr boot/*.bin
-	rm -r build/*.o build/*.bin
-
-# Disassemble kernel for debugging
-kernel.dis: build/kernel.bin
-	ndisasm -b 32 $< > $@
-
-# Run qemu to simulate booting
-run: all
-	echo "Running..."
-	qemu-system-i386 -fda os-image
-
-# --------- Build procedures ----------
-
-# The actual disk image that our computer loads.
-# A combo of the bootsector and kernel.
-os-image: build/boot.bin build/kernel.bin
-	cat $^ > os-image
-
-# Build the kernel binary from the two main obj files:
-# 	- kernel_entry, which jumps to main() in the kernel
-# 	- kernel.o, the compiled C kernel
-build/kernel.bin: build/kernel_entry.o build/kernel.o build/screen.o build/ports.o
+# '--oformat binary' deletes all symbols as a collateral, so we don't need
+# to 'strip' them manually on this case
+kernel.bin: boot/kernel_entry.o ${OBJ}
 	ld -m elf_i386 -s -o $@ -Ttext 0x1000 $^ --oformat binary
 
-# Build the kernel object file
-build/kernel.o: kernel/kernel.c drivers/screen.h drivers/ports.h
-	gcc -m32 -ffreestanding -c $< -o $@
+# Used for debugging purposes
+kernel.elf: boot/kernel_entry.o ${OBJ}
+	ld -o $@ -Ttext 0x1000 $^ 
 
-build/screen.o: drivers/screen.c
-	gcc -m32 -ffreestanding -c $< -o $@
+run: os-image.bin
+	qemu-system-i386 -fda os-image.bin
 
-build/ports.o: drivers/ports.c
-	gcc -m32 -ffreestanding -c $< -o $@
+# Open the connection to qemu and load our kernel-object file with symbols
+debug: os-image.bin kernel.elf
+	qemu-system-i386 -s -fda os-image.bin -d guest_errors,int &
+	# ${GDB} -ex "target remote localhost:1234" -ex "symbol-file kernel.elf"
 
-# Build kernel entry object file
-build/kernel_entry.o: boot/kernel_entry.asm
+# Generic rules for wildcards
+# To make an object, always compile from its .c
+%.o: %.c ${HEADERS}
+	${CC} ${CFLAGS} -ffreestanding -c $< -o $@
+
+%.o: %.asm
 	nasm $< -f elf -o $@
 
-# Assemble the boot sector to machine code
-build/boot.bin: boot/boot.asm
+%.bin: %.asm
 	nasm $< -f bin -I "boot/" -o $@
+
+clean:
+	rm -rf *.bin *.dis *.o os-image.bin *.elf
+	rm -rf kernel/*.o boot/*.bin drivers/*.o boot/*.o cpu/*.o
+
