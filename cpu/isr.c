@@ -1,7 +1,17 @@
 #include "isr.h"
 #include "idt.h"
 #include "../drivers/screen.h"
+#include "../drivers/ports.h"
 #include "../kernel/util.h"
+
+#define PIC1         0x20
+#define PIC2         0xA0
+#define PIC1_COMMAND PIC1
+#define PIC2_COMMAND PIC2
+#define PIC1_DATA    (PIC1+1)
+#define PIC2_DATA    (PIC2+1)
+
+isr_t interrupt_handlers[256];
 
 /* Can't do in a loop because
  * we need the address of the
@@ -39,6 +49,36 @@ void isr_install() {
 	set_idt_gate(29, (u32)isr29);
 	set_idt_gate(30, (u32)isr30);
 	set_idt_gate(31, (u32)isr31);
+
+	/* Remap the PIC (Programmable interrupt controller) */
+	port_byte_out(PIC1,      0x11); /* 0x11 is PIC initialization code */
+	port_byte_out(PIC2,      0x11); /* 0x11 is PIC initialization code */
+	port_byte_out(PIC1_DATA, PIC1); 
+	port_byte_out(PIC2_DATA, 0x28);
+	port_byte_out(PIC1_DATA, 0x04);
+	port_byte_out(PIC2_DATA, 0x02);
+	port_byte_out(PIC1_DATA, 0x01);
+	port_byte_out(PIC2_DATA, 0x01);
+	port_byte_out(PIC1_DATA, 0x00);
+	port_byte_out(PIC2_DATA, 0x00);
+
+	/* Install the IRQs */
+	set_idt_gate(32,  (u32)isr0);
+	set_idt_gate(33,  (u32)isr1);
+	set_idt_gate(34,  (u32)isr2);
+	set_idt_gate(35,  (u32)isr3);
+	set_idt_gate(36,  (u32)isr4);
+	set_idt_gate(37,  (u32)isr5);
+	set_idt_gate(38,  (u32)isr6);
+	set_idt_gate(39,  (u32)isr7);
+	set_idt_gate(40,  (u32)isr8);
+	set_idt_gate(41,  (u32)isr9);
+	set_idt_gate(42, (u32)isr10);
+	set_idt_gate(43, (u32)isr11);
+	set_idt_gate(44, (u32)isr12);
+	set_idt_gate(45, (u32)isr13);
+	set_idt_gate(46, (u32)isr14);
+	set_idt_gate(47, (u32)isr15);
 
 	set_idt(); // Load with ASM
 }
@@ -90,4 +130,21 @@ void isr_handler(registers_t r) {
 	kprint("\n");
 	kprint(exception_messages[r.int_no]);
 	kprint("\n");
+}
+
+void register_interrupt_handler(u8 n, isr_t handler) {
+	interrupt_handlers[n] = handler;
+}
+
+void irq_handler(registers_t r) {
+	/* After every interrupt we need to send an EOI to the PICs
+	 * or they will not send another interrupt again. */
+	if (r.int_no >= 40) port_byte_out(PIC2, PIC1); /* slave */
+	port_byte_out(PIC1, PIC1); /* master */
+
+	/* Handle interrupt in a more modular way */
+	if (interrupt_handlers[r.int_no] != 0) {
+		isr_t handler = interrupt_handlers[r.int_no];
+		handler(r);
+	}
 }
