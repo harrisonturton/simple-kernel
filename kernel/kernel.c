@@ -1,13 +1,25 @@
-#include "../drivers/screen.h"
-#include "util.h"
 #include "../cpu/isr.h"
-#include "../cpu/idt.h"
+#include "../cpu/timer.h"
+#include "../drivers/keyboard.h"
+#include "../drivers/screen.h"
 
 void main() {
 	isr_install();
+	asm volatile("sti");
+	//init_timer(50);
+	init_keyboard();
+
+	/*
+	kprint("Howdy");
+	isr_install();
+	asm volatile("sti");
+
+	init_keyboard();*/
+
+
 	/* Test Interrupts */
-	__asm__ __volatile__ ("int $2");
-	__asm__ __volatile__ ("int $3");
+	// __asm__ __volatile__ ("int $2");
+	// __asm__ __volatile__ ("int $3");
 	/*clear_screen();
 	Fill screen
 	int i = 0;
