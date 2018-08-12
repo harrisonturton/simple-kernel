@@ -11,7 +11,16 @@ KERNEL_OFFSET equ 0x1000     ; The memory offet where we'll load the kernel
   call print_nl
   
   call load_kernel
-  
+
+  ; Change to video mode
+  call change_to_video
+  ; Draw a pixel
+  push 0xa000
+  pop es
+  mov di, 50
+  mov ax, 55
+  mov [es:di], ax
+
   call switch_to_protected
   
   jmp $
@@ -33,6 +42,13 @@ load_kernel:
   mov dl, [BOOT_DRIVE]
   call disk_load
 
+  ret
+
+[bits 16]
+change_to_video:
+  ; See https://stackoverflow.com/questions/38268762/write-graphics-pixels-in-16-bit-assembly
+  mov ax, 0x13 ; Video
+  int 0x10
   ret
  
 [bits 32]
