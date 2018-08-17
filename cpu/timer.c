@@ -1,20 +1,15 @@
 #include "timer.h"
-#include "../drivers/ports.h"
+#include "ports.h"
 #include "../drivers/screen.h"
 #include "../libc/string.h"
+#include "../libc/function.h"
 #include "isr.h"
 
 uint32_t tick = 0;
 
 static void timer_callback(registers_t regs) {
-	kprint("In timer callback...");
 	tick++;
-	kprint("Tick :");
-
-	char tick_ascii[256];
-	int_to_ascii(tick, tick_ascii);
-	kprint(tick_ascii);
-	kprint("\n");
+	UNUSED(regs);
 }
 
 void init_timer(uint32_t freq) {
