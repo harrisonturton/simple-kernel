@@ -9,6 +9,10 @@ void main() {
 	//init_timer(50);
 	init_keyboard();
 
+	char* str;
+	int_to_ascii(sizeof(int), str);
+	kprint(str);
+
 	/*
 	kprint("Howdy");
 	isr_install();
