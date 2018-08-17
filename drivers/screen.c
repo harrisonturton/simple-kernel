@@ -19,6 +19,17 @@ void kprint(char *message) {
 	kprint_at(message, -1, -1);
 }
 
+void kprint_backspace() {
+	int cursor_offset = get_cursor_offset();
+
+	/* Make sure don't erase other memory */
+	if (cursor_offset == 0) return;
+
+    int new_offset = cursor_offset - 1;
+    kprint_at(" ", get_offset_col(new_offset), get_offset_row(new_offset));
+    set_cursor_offset(new_offset);
+}
+
 /*
  * Print a message at specified location. If col or row
  * are negative, we print at the cursor.

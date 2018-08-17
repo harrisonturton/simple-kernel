@@ -6,8 +6,9 @@
 void main() {
 	isr_install();
 	irq_install();
+}
 
-	char* str;
-	int_to_ascii(sizeof(int), str);
-	kprint(str);
+
+void user_input(uint8_t *input) {
+	kprint(input);
 }

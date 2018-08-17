@@ -32,3 +32,14 @@ void int_to_ascii(uint32_t n, uint8_t str[]) {
 
     reverse(str);
 }
+
+void append(uint8_t s[], uint8_t n) {
+    int len = strlen(s);
+    s[len] = n;
+    s[len+1] = '\0';
+}
+
+void backspace(uint8_t s[]) {
+    int len = strlen(s);
+    s[len - 1] = '/0';
+}
