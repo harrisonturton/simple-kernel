@@ -13,11 +13,11 @@ void main() {
 
 
 void user_input(uint8_t *input) {
-	if (strcmp(input, "END") == 0) {
+	if (strcmp(input, "end") == 0) {
 		kprint("Stopping the CPU...\n");
 		asm volatile("hlt");
 	}
-	if (strcmp(input, "CLEAR") == 0) {
+	if (strcmp(input, "clear") == 0) {
 		clear_screen();
 		kprint(" > ");
 		return;

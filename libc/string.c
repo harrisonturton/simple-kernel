@@ -41,7 +41,7 @@ void append(uint8_t s[], uint8_t n) {
 
 void backspace(uint8_t s[]) {
     int len = strlen(s);
-    s[len - 1] = '/0';
+    s[len - 1] = '\0';
 }
 
 uint8_t strcmp(uint8_t s_a[], uint8_t s_b[]) {
