@@ -44,7 +44,7 @@ You can also `make clean` to remove object files, binaries & disk images from th
 - [x] Handle timer interrupts
 - [x] Handle keyboard interrupts
 - [x] Display basic graphics
-- [ ] Write a simple `fetch-decode-execute` terminal
+- [x] Write a simple `fetch-decode-execute` terminal
 - [ ] Basic filesystem
 - [ ] Write utilities for terminal (i.e. `cd`, `ls`, text editor, etc.)
 - [ ] Basic multitasking
