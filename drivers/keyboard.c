@@ -1,5 +1,5 @@
 #include "keyboard.h"
-#include "ports.h"
+#include "../cpu/ports.h"
 #include "../libc/string.h"
 #include "../cpu/isr.h"
 #include "screen.h"

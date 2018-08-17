@@ -3,7 +3,7 @@
 #include "timer.h"
 #include "../drivers/screen.h"
 #include "../drivers/keyboard.h"
-#include "../drivers/ports.h"
+#include "ports.h"
 #include "../libc/string.h"
 
 #define PIC1         0x20
