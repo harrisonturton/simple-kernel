@@ -43,3 +43,11 @@ void backspace(uint8_t s[]) {
     int len = strlen(s);
     s[len - 1] = '/0';
 }
+
+uint8_t strcmp(uint8_t s_a[], uint8_t s_b[]) {
+    int i;
+    for (i = 0; s_a[i] == s_b[i]; i++) {
+        if (s_a[i] == '\0') return 0;
+    }
+    return s_a[i] - s_b[i];
+}

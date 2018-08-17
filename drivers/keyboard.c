@@ -11,6 +11,7 @@
 #define BACKSPACE     0x0E
 #define ENTER         0x1C
 
+static uint8_t key_buffer_len = 0;
 static char key_buffer[256];
 
 const char *scancode_name[] = {
@@ -34,17 +35,20 @@ static void keyboard_callback(registers_t regs) {
 
 	if (scancode > SCANCODE_MAX) return;
 	if (scancode == BACKSPACE) {
+		if (key_buffer_len == 0) return;
 		kprint_backspace();
 		return;
 	} else if (scancode == ENTER) {
 		kprint("\n");
 		user_input(key_buffer);
 		key_buffer[0] = '\0';
+		key_buffer_len = 0;
 		return;
 	} else {
 		char letter = scancode_ascii[(uint32_t) scancode];
 		/* kprint() only accepts char[] */
 		char str[2] = { letter, '\0' };
+		key_buffer_len++;
 		append(key_buffer, letter);
 		kprint(str);
 	}

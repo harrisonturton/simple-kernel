@@ -6,9 +6,23 @@
 void main() {
 	isr_install();
 	irq_install();
+
+	clear_screen();
+	kprint(" > ");
 }
 
 
 void user_input(uint8_t *input) {
+	if (strcmp(input, "END") == 0) {
+		kprint("Stopping the CPU...\n");
+		asm volatile("hlt");
+	}
+	if (strcmp(input, "CLEAR") == 0) {
+		clear_screen();
+		kprint(" > ");
+		return;
+	}
+	kprint("$ ");
 	kprint(input);
+	kprint("\n > ");
 }
